@@ -1,0 +1,7 @@
+.sortBtn .img.down{
+    transform: rotate(180deg);
+}
+
+.sortBtnName #nameImg{
+    transform: rotate(180deg);
+}
