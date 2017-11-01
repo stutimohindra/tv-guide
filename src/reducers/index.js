@@ -1,20 +1,24 @@
 import {
     FETCH_CHANNELS_SUCCESS,
     FETCH_CHANNELS_EVENT_SUCCESS,
-    START_DATE,
+    GET_DATES,
     CHANNEL_ID,
     FETCH_SORT_ORDER_SUCCESS,
     FETCH_SET_SORT_ORDER_SUCCESS,
-    SET_CHANNEL_LIST_SUCCESS
+    SET_CHANNEL_LIST_SUCCESS,
+    POS_VALUE
     } from '../actions/index'
 import moment from 'moment';
 
 const INITIAL_STATE = {
     channels:[],
     channelId:'',
-    startDate: moment(new Date()).format('YYYY-MM-DD HH:MM'),
+    startDate: moment(new Date()).format('YYYY-MM-DD hh:mm A'),
+    endDate: '',
     sortOrder:1,
+    channelEvent:'',
     sortKey:'channelStbNumber',
+    currentPosition: 0,
 }
 
 export function reducer(state = INITIAL_STATE, action) {
@@ -28,7 +32,7 @@ export function reducer(state = INITIAL_STATE, action) {
         case FETCH_CHANNELS_EVENT_SUCCESS:
             return {
                 ...state,
-                channelEvent: action.channelEvent.data
+                channelEvent: action.channelEvent
             }
         break;
         case CHANNEL_ID:
@@ -37,10 +41,11 @@ export function reducer(state = INITIAL_STATE, action) {
                 channelId: action.channelId
             }
         break;
-        case START_DATE:
+        case GET_DATES:
             return {
                 ...state,
-                startDate: action.startDate
+                startDate: action.startDate,
+                endDate : action.endDate
             }
         break;
         case FETCH_SORT_ORDER_SUCCESS:
@@ -64,6 +69,12 @@ export function reducer(state = INITIAL_STATE, action) {
                 channelId: action.channelId
             }
         break;
+        case POS_VALUE:
+            return {
+                ...state,
+                currentPosition: action.currentPosition
+
+            }
         default:
             return state;
     }

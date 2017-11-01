@@ -5,3 +5,54 @@
 .sortBtnName #nameImg{
     transform: rotate(180deg);
 }
+
+
+
+.timeRow{
+    position: relative;
+    height: 50px;
+}
+
+.timeRow .item{
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 0;
+    background-color: rgba(240, 173, 78, 0.8);
+    left:0px
+
+}
+.timeRow .item > div{
+    height: 100%;
+    font-size: 10px;
+}
+
+.eventRow{
+    position: relative;
+    height: 150px;
+}
+.eventRowWraper{
+    width: 100%;
+    height: 100%;
+    display:flex;
+    justify-content: flex-start;
+    flex-direction: row;
+    position: absolute;
+    overflow: hidden;
+    z-index: 1;
+    background-color: #0275d8;
+
+}
+
+.eventRow .item{
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 0;
+    background-color: rgba(240, 173, 78, 0.8);
+    left:0px
+
+}
+.eventRow .item > div{
+    height: 100%;
+    font-size: 10px;
+}
+

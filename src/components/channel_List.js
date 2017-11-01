@@ -2,35 +2,117 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import {
     getChannelList,
-    getChannelEvent,
     channelId,
-    startDate,
     sorting,
-    setSortOrder
+    setSortOrder,
+    getStartEndDate,
+    getChannelEvent,
+    setPos
     } from '../actions/index';
+import {getPixelWidth} from '../utility';
 import ChannelListItem from './channel_List_Item';
 import { Col,Row,Grid,Button } from 'react-bootstrap';
+import moment from 'moment';
+import TimeHeader from'./time_header'
+import {debounce} from './../utility'
 
 class ChannelList extends Component {
-
+    constructor(){
+        super();
+        this.isInitialRender = true
+    }
   componentDidMount(){
+
       this.props.getChannelList();
+      this.props.getStartEndDate();
+      window.addEventListener('scroll', debounce(this.onChannelRowUpdate.bind(this),250));
+      window.addEventListener('resize', debounce(this.onChannelRowUpdate.bind(this),250));
+      window.addEventListener('load', debounce(this.handleLoad.bind(this),250));
+
   }
+  handleLoad(){
+      setTimeout(this.onChannelRowUpdate.bind(this),3000);
+  }
+
+    isElementVisible = (el) => {
+        let rect     = el.getBoundingClientRect(),
+            vWidth   = window.innerWidth || doc.documentElement.clientWidth,
+            vHeight  = window.innerHeight || doc.documentElement.clientHeight,
+            efp      = function (x, y) { return document.elementFromPoint(x, y) };
+
+        // Return false if it's not in the viewport
+        if (rect.right < 0 || rect.bottom < 0
+            || rect.left > vWidth || rect.top > vHeight)
+            return false;
+
+        // Return true if any of its four corners are visible
+        return (
+            el.contains(efp(rect.left,  rect.top))
+            ||  el.contains(efp(rect.right, rect.top))
+            ||  el.contains(efp(rect.right, rect.bottom))
+            ||  el.contains(efp(rect.left,  rect.bottom))
+        );
+    }
+
+
+
+
+  onChannelRowUpdate=()=>{
+
+    let $channelRows = document.querySelectorAll('.childRow')
+
+    let visibleChannels = []
+     // find the ones in viewport
+      $channelRows.forEach((target,idx)=>{
+
+          if(this.isElementVisible(target)){
+
+              visibleChannels.push(target.getAttribute('data-channel-id'))
+
+          }
+
+      })
+
+      visibleChannels.join(',')
+      //console.log(visibleChannels)
+      this.props.getChannelEvent(visibleChannels,
+          moment(this.props.startDate).format('YYYY-MM-DD HH:MM'),moment(this.props.endDate).format('YYYY-MM-DD HH:MM'));
+    }
 
   renderItem(channels) {
       if(channels !== undefined) {
           return (
               channels.map(object => {
                   return (
-                      <ChannelListItem  key={object.channelId} channel = {object} />
+                      <div key={object.channelId} ref={object.channelId} data-channel-id={object.channelId} className="childRow" >
+                          <ChannelListItem  key={object.channelId} channel = {object} channelEvent={this.props.channelEvent[object.channelId]}/>
+                      </div>
                   )
               })
           )
       }
   }
 
+  renderTimeHeader(){
+      let startDate = moment(this.props.startDate);
+      let endDate = moment(this.props.endDate);
+      let duration = Math.round(moment.duration(endDate.diff(startDate)).asHours());
+      let durationArray = [];
+      for(let i = duration;i >= 0;i--) {
+          durationArray.push(i)
+      }
+
+      return durationArray.map( object =>{
+          return (
+                <div className="item" key={object}  style={{border:'2px solid #000', width: getPixelWidth(60) ,left:-getPixelWidth(60)* this.props.currentPosition}}>
+                    <TimeHeader key={object} startDate={startDate.get('hour')} endDate={parseInt((startDate).add(1, 'hours').format('HH'))}/>
+                </div>
+          )
+      })
+  }
+
   handleClick(e){
-      debugger
+
       let sort = this.props.sortOrder
       let sortOrder;
         if(sort == 1){
@@ -41,7 +123,6 @@ class ChannelList extends Component {
             sortOrder = 1
         }
 
-
      if(e.currentTarget.getAttribute('data-key') === 'channelStbNumber' ) {
 
          this.props.sorting(this.props.channels,'channelStbNumber',sortOrder)
@@ -50,23 +131,53 @@ class ChannelList extends Component {
 
          this.props.sorting(this.props.channels,'channelTitle',sortOrder)
      }
+
+     this.onChannelRowUpdate();
   }
+    onProgrammeScroll(ctr,ctx){
+
+      return function(e){
+          if(ctr >= 1){
+              ctx.props.setPos(ctx.props.currentPosition +1);
+          }else if(ctr <= -1){
+              ctx.props.setPos(ctx.props.currentPosition - 1);
+          }
+
+      }
+
+    }
 
   render() {
 
-       return (
+      return (
            <Grid>
+
+
                <Row>
-                  <Col md={4} sm={4}>
+                   <Button onClick={this.onProgrammeScroll(-1,this)}>Left</Button>  <Button onClick={this.onProgrammeScroll(1,this)}>Right</Button>
+
+               </Row>
+
+               <Row>
+                  <Col md={3} sm={3}>
                       <Button className="sortBtn" data-key ='channelStbNumber' style={{ backgroundColor:'white',border:'2px solid #000'  }}
                               onClick={(e) => {this.handleClick(e)} }>
                           Number <span ><img className={(this.props.sortOrder == 1 ? 'up':'down')} id='numberImg' src="" alt="▲"/> </span>
                       </Button>
                       <Button  data-key ='channelTitle' style={{ backgroundColor:'white',border:'2px solid #000'  }}
-                              onClick={(e) => {this.handleClick(e)} }>Name<img className={(this.props.sortOrder == 1 ? 'up':'down')} id='nameImg' src="" alt="▲"/> </Button>
+                              onClick={(e) => {this.handleClick(e)} }>Name<img className={(this.props.sortOrder == 1 ? 'up':'down')}
+                              id='nameImg' src="" alt="▲"/> </Button>
                   </Col>
-                  <Col md={8} sm={8}>
+                  <Col md={9} sm={9}>
+                      <Row style={{ border: '2px solid #000',width:'auto' }}>
 
+                          <Col className="timeRow" style={{padding: 0}} >
+                              <div className="eventRowWraper" style={{border:'2px solid #000' }}>
+                                     {this.renderTimeHeader()}
+                              </div>
+                          </Col>
+
+                      </Row>
                   </Col>
                </Row>
                <Row>
@@ -85,17 +196,20 @@ function mapStateToProps(state) {
         channels: state.channels,
         channelEvent:state.channelEvent,
         channelId: state.channelId,
-        startDate: state.startDate,
         sortKey: state.sortKey,
-        sortOrder: state.sortOrder
+        sortOrder: state.sortOrder,
+        startDate: state.startDate,
+        endDate: state.endDate,
+        currentPosition: state.currentPosition
     };
 }
 
 export default connect(mapStateToProps, {
     getChannelList,
-    getChannelEvent,
     channelId,
-    startDate,
     sorting,
-    setSortOrder
+    setSortOrder,
+    getStartEndDate,
+    getChannelEvent,
+    setPos
 })(ChannelList);

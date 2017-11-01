@@ -2,69 +2,71 @@ import React, { Component } from 'react';
 import { Col,Image,Row,Grid } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import ChannelListItemDesc from './channel_list_item_desc';
+import ChannelEventDetail from './channel_Event_Detail';
+import { getPixelWidth } from '../utility';
+import moment from 'moment';
 import {
-    setChannelIdList
+    setChannelIdList,
+    getStartEndDate,
+    getChannelEvent,
+    setPos,
 } from '../actions/index';
 
 class ChannelListItem extends Component {
+
     constructor() {
         //move to redux
         super();
         this.state = {
             clicked: false,
+            pos:0.2
         };
     }
-    getOffset=(element, target) =>{
-     target  = target ? (target) : window;
-    let offset = {top: element.offsetTop, left: element.offsetLeft},
-        parent = element.offsetParent;
-    while (parent != null && parent != target) {
-        offset.left += parent.offsetLeft;
-        offset.top  += parent.offsetTop;
-        parent = parent.offsetParent;
-    }
-    return offset;
-   }
-    runTheTest=() => {
-        let target  = this.refs.rowRef;
 
-        if(this.isElementVisible(target)){
-            console.log("inside visic",this.props)
-            this.props.channelId
-            //Fetch the chanels programmes
-        }
-    }
-
-    isElementVisible = (el) => {
-        let rect     = el.getBoundingClientRect(),
-            vWidth   = window.innerWidth || doc.documentElement.clientWidth,
-            vHeight  = window.innerHeight || doc.documentElement.clientHeight,
-             efp      = function (x, y) { return document.elementFromPoint(x, y) };
-
-        // Return false if it's not in the viewport
-        if (rect.right < 0 || rect.bottom < 0
-            || rect.left > vWidth || rect.top > vHeight)
-            return false;
-
-        // Return true if any of its four corners are visible
-        return (
-            el.contains(efp(rect.left,  rect.top))
-            ||  el.contains(efp(rect.right, rect.top))
-            ||  el.contains(efp(rect.right, rect.bottom))
-            ||  el.contains(efp(rect.left,  rect.bottom))
-        );
-    }
     componentDidMount(){
-        this.runTheTest();
+
         this.props.channel;
+
+    }
+
+    renderEvents= (event) =>{
+        if(event !== undefined) {
+            return(
+            event.map(object => {
+                let eventEndAt;
+                let eventDuration=0
+                if (object.displayDuration.substring(0, 2) != '00') {
+                    eventEndAt = moment(object.displayDateTime).add(parseInt(object.displayDuration.substring(0, 2)), 'hour');
+                    eventDuration = (parseInt(object.displayDuration.substring(0, 2)) * 60)
+                }
+                if (object.displayDuration.substring(3, 5) != '00') {
+                    eventEndAt = moment(object.displayDateTime).add(parseInt(object.displayDuration.substring(3, 5)), 'minutes');
+                    eventDuration = eventDuration + parseInt(object.displayDuration.substring(3, 5))
+                }
+                eventEndAt = moment(eventEndAt).format('HH:mm A');
+
+                const styles = { width: getPixelWidth(eventDuration)}
+
+
+
+
+                return (
+                    <div className="item" style={{border:'2px solid #000', width: styles.width ,left:-getPixelWidth(60)* this.props.currentPosition}}>
+
+                     <ChannelEventDetail className="item" displayDuration={object.displayDuration} endTime={eventEndAt} startTime={moment(object.displayDateTime).format('HH:mm A')} eventName={object.programmeTitle}/>
+                    </div>
+
+                )
+            })
+            )
+        }
+
     }
 
     handleClick= () => {
         this.setState({ clicked : !this.state.clicked })
     }
     render(){
-
-
         const channelInfo =  this.props.channel
             return (
                 <div ref="rowRef" data-key={channelInfo.channelId}>
@@ -80,26 +82,55 @@ class ChannelListItem extends Component {
                                     </Col>
                                     <Col  md={1} sm={1}>
                                         {channelInfo.channelStbNumber}
-
                                     </Col>
                                     <Col style={{ overflow: 'hidden', textOverflow: 'ellipsis' }} md={10} sm={10}>
                                         {channelInfo.channelTitle}
-
                                     </Col>
                                 </Row>
                             </Col>
 
-                            <Col md={9} sm={9}>
-                                {/*channel info*/}
-
+                            <Col className="eventRow" style={{padding: 0}} md={9} sm={9}>
+                                <div className="eventRowWraper">
+                                    { this.props.channelEvent[channelInfo.channelId]? (this.renderEvents(this.props.channelEvent[channelInfo.channelId])) : <div/>}
+                                </div>
                             </Col>
+
+
+
+
+
+                            {/*<Col className="eventRow" style={{padding: 0}} md={9} sm={9}>*/}
+                                {/*<div className="eventRowWraper">*/}
+                                    {/*<div className="item" style={{border:'2px solid #000', width: 120 }}>*/}
+                                        {/*dfdsfdsf*/}
+                                    {/*</div>*/}
+                                    {/*<div className="item" style={{border:'2px solid #000', width: 33}}>*/}
+                                        {/*dfdsfdsf*/}
+                                    {/*</div>*/}
+                                    {/*<div className="item" style={{border:'2px solid #000', width: 200 }}>*/}
+                                        {/*dfdsfdsf*/}
+                                    {/*</div>*/}
+                                    {/*<div className="item" style={{border:'2px solid #000', width: 200 }}>*/}
+                                        {/*dfdsfdsf*/}
+                                    {/*</div>*/}
+                                    {/*<div className="item" style={{border:'2px solid #000', width: 200}}>*/}
+                                        {/*dfdsfdsf*/}
+                                    {/*</div>*/}
+                                    {/*<div className="item" style={{border:'2px solid #000', width: 200 }}>*/}
+                                        {/*dfdsfdsf*/}
+                                    {/*</div>*/}
+                                {/*</div>*/}
+
+                            {/*</Col>*/}
+
+
+
+
                         </Row>
                         <Row>
                             { this.state.clicked ? <ChannelListItemDesc key={channelInfo.channelId} channelDesc={channelInfo} handleClick={this.handleClick} /> : <div/> }
                         </Row>
                     </Grid>
-
-
                 </div>
 
             )
@@ -109,11 +140,18 @@ class ChannelListItem extends Component {
 function mapStateToProps(state) {
     return {
         channelId: state.channelId,
+        startDate: state.startDate,
+        endDate: state.endDate,
+        channelEvent:state.channelEvent,
+        currentPosition: state.currentPosition
     };
 }
 
 export default connect(mapStateToProps, {
-    setChannelIdList
+    setChannelIdList,
+    getStartEndDate,
+    getChannelEvent,
+    setPos
 })(ChannelListItem);
 
 

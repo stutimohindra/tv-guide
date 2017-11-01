@@ -10,8 +10,7 @@ function configureStore(initialState) {
     return createStore(
         initialState,
         applyMiddleware(
-            thunkMiddleware,
-            promise
+            thunkMiddleware
         )
     )
 }
