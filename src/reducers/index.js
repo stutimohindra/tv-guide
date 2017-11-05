@@ -6,9 +6,16 @@ import {
     FETCH_SORT_ORDER_SUCCESS,
     FETCH_SET_SORT_ORDER_SUCCESS,
     SET_CHANNEL_LIST_SUCCESS,
-    POS_VALUE
-    } from '../actions/index'
+    POS_VALUE,
+    FACEBOOK_DETAILS,
+    FETCH_FAVOURITES,
+    USER_INSERT_SUCCESS,
+    USER_FAV_SUCCESS,
+    UPDATED_FAVOURITES
+    } from '../actions/index';
+import _ from 'lodash';
 import moment from 'moment';
+
 
 const INITIAL_STATE = {
     channels:[],
@@ -19,6 +26,12 @@ const INITIAL_STATE = {
     channelEvent:'',
     sortKey:'channelStbNumber',
     currentPosition: 0,
+    name: undefined,
+    facebookId:undefined,
+    favourites:[],
+    user:false,
+    favInserted:false,
+    favouritesUpdated:false,
 }
 
 export function reducer(state = INITIAL_STATE, action) {
@@ -32,7 +45,7 @@ export function reducer(state = INITIAL_STATE, action) {
         case FETCH_CHANNELS_EVENT_SUCCESS:
             return {
                 ...state,
-                channelEvent: action.channelEvent
+                channelEvent: _.extend({},state.channelEvent, action.channelEvent)
             }
         break;
         case CHANNEL_ID:
@@ -75,6 +88,43 @@ export function reducer(state = INITIAL_STATE, action) {
                 currentPosition: action.currentPosition
 
             }
+        break;
+        case FACEBOOK_DETAILS:{
+            return{
+                ...state,
+                name:action.name,
+                facebookId:action.facebookId
+            }
+        }
+        break;
+        case FETCH_FAVOURITES:{
+            return {
+                ...state,
+                favourites: action.favourites
+            }
+        }
+        break;
+        case USER_INSERT_SUCCESS:{
+            return{
+                ...state,
+                user:action.user
+            }
+        }
+        break;
+        case USER_FAV_SUCCESS:{
+            return{
+                ...state,
+                favInserted:action.favInserted
+            }
+        }
+        break;
+        case UPDATED_FAVOURITES:{
+            return{
+                ...state,
+                favouritesUpdated:action.favouritesUpdated
+            }
+        }
+        break;
         default:
             return state;
     }

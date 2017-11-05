@@ -4,28 +4,33 @@ import { connect } from 'react-redux';
 import ChannelListItemDesc from './channel_list_item_desc';
 import ChannelEventDetail from './channel_Event_Detail';
 import { getPixelWidth } from '../utility';
+import { browserHistory } from 'react-router';
 import moment from 'moment';
 import {
-    setChannelIdList,
     getStartEndDate,
     getChannelEvent,
     setPos,
+    insertFavourites,
+    updateFav,
+    getfavourites
 } from '../actions/index';
+/*
+This class renders if channel is fav or not,it is the parent class for events of the channel
+ */
 
 class ChannelListItem extends Component {
 
     constructor() {
-        //move to redux
         super();
         this.state = {
             clicked: false,
-            pos:0.2
         };
     }
 
     componentDidMount(){
 
         this.props.channel;
+        this.props.getfavourites(this.props.facebookId,this.props.name);
 
     }
 
@@ -33,27 +38,32 @@ class ChannelListItem extends Component {
         if(event !== undefined) {
             return(
             event.map(object => {
-                let eventEndAt;
+                let eventEndAt = moment(new Date(object.displayDateTime));
                 let eventDuration=0
+
                 if (object.displayDuration.substring(0, 2) != '00') {
-                    eventEndAt = moment(object.displayDateTime).add(parseInt(object.displayDuration.substring(0, 2)), 'hour');
-                    eventDuration = (parseInt(object.displayDuration.substring(0, 2)) * 60)
+                    eventEndAt = moment(new Date(object.displayDateTime)).add(parseInt(object.displayDuration.substring(0, 2)), 'hour');
+                    eventDuration = (parseInt(object.displayDuration.substring(0, 2)) *60 )
                 }
                 if (object.displayDuration.substring(3, 5) != '00') {
-                    eventEndAt = moment(object.displayDateTime).add(parseInt(object.displayDuration.substring(3, 5)), 'minutes');
+                    eventEndAt = moment(new Date(eventEndAt)).add(parseInt(object.displayDuration.substring(3, 5)), 'minutes');
                     eventDuration = eventDuration + parseInt(object.displayDuration.substring(3, 5))
                 }
-                eventEndAt = moment(eventEndAt).format('HH:mm A');
+                eventEndAt = moment(new Date(eventEndAt)).format('HH:mm A');
 
                 const styles = { width: getPixelWidth(eventDuration)}
 
-
-
-
                 return (
-                    <div className="item" style={{border:'2px solid #000', width: styles.width ,left:-getPixelWidth(60)* this.props.currentPosition}}>
-
-                     <ChannelEventDetail className="item" displayDuration={object.displayDuration} endTime={eventEndAt} startTime={moment(object.displayDateTime).format('HH:mm A')} eventName={object.programmeTitle}/>
+                    <div key={object.eventID} className="item" style={{border:'2px solid #000', width: styles.width ,left:-getPixelWidth(60)* this.props.currentPosition}}>
+                     <ChannelEventDetail className="item"
+                                         displayDuration={object.displayDuration}
+                                         endTime={eventEndAt}
+                                         startTime={moment(object.displayDateTime).format('HH:mm A')}
+                                         eventName={object.programmeTitle}
+                                         shortSynopsis = {object.shortSynopsis}
+                                         subGenre = {object.subGenre}
+                                         actors = {object.actors}
+                     />
                     </div>
 
                 )
@@ -62,10 +72,59 @@ class ChannelListItem extends Component {
         }
 
     }
+    toggleImage=(channelId,isFav)=>{
+        console.log(channelId,this.props.facebookId !== undefined , this.props.name !== undefined , isFav)
+        if(this.props.facebookId !== undefined && this.props.name !== undefined && !isFav) {
+            console.log("came inside")
+            this.props.insertFavourites(this.props.facebookId,this.props.name,channelId);
+            this.props.getfavourites(this.props.facebookId,this.props.name)
+
+        }else if(this.props.facebookId !== undefined && this.props.name !== undefined && isFav){
+            console.log("came inside ausii")
+            this.props.updateFav(this.props.facebookId,this.props.name,channelId);
+            this.props.getfavourites(this.props.facebookId,this.props.name)
+
+
+        }else if(this.props.facebookId === undefined && this.props.name === undefined){
+            return (
+                browserHistory.push('/login')
+            )
+        }
+    }
+
+    handleClickFav = (channelId) =>{
+        let isFav = false
+        console.log(this.props.favourites)
+        if(this.props.favourites.indexOf(channelId) >= 0){
+            isFav = true;
+        }
+        this.toggleImage(channelId,isFav);
+    }
 
     handleClick= () => {
         this.setState({ clicked : !this.state.clicked })
     }
+
+    handleChannelDesc =() =>{
+        this.props.setHandleClickEvent(!this.props.isClickedEvent)
+    }
+
+    checkLoggedIn =(channelId) =>{
+        let isFav = false
+        if(this.props.favourites.indexOf(channelId) >= 0){
+            isFav = true;
+        }
+        if(this.props.facebookId !== undefined && this.props.name !== undefined && isFav){
+            return (
+                <Image className='fullHeart' style={{width: "15", height: '20'}} src="../../images/fullheart.png"/>
+            )
+        }else if(this.props.facebookId !== undefined && this.props.name !== undefined && !isFav) {
+            return (
+                <Image className='emptyHeart' style={{width: "15", height: '15'}} src="../../images/emptyheart.jpg"/>
+            )
+        }
+    }
+
     render(){
         const channelInfo =  this.props.channel
             return (
@@ -77,8 +136,10 @@ class ChannelListItem extends Component {
                                     <Image width="100" src={channelInfo.channelExtRef[8].value}/>
                                 </Row>
                                 <Row>
-                                    <Col md={1} sm={1}>
-                                        <Image style={{ width:"15" }}  src="../../images/emptyheart.jpg"/>
+                                    <Col md={1} sm={1} >
+                                        <div onClick={()=>this.handleClickFav(channelInfo.channelId)}>
+                                            {this.checkLoggedIn(channelInfo.channelId)}
+                                        </div>
                                     </Col>
                                     <Col  md={1} sm={1}>
                                         {channelInfo.channelStbNumber}
@@ -89,42 +150,11 @@ class ChannelListItem extends Component {
                                 </Row>
                             </Col>
 
-                            <Col className="eventRow" style={{padding: 0}} md={9} sm={9}>
+                            <Col className="eventRow" style={{padding: 0}} md={9} sm={9} >
                                 <div className="eventRowWraper">
                                     { this.props.channelEvent[channelInfo.channelId]? (this.renderEvents(this.props.channelEvent[channelInfo.channelId])) : <div/>}
                                 </div>
                             </Col>
-
-
-
-
-
-                            {/*<Col className="eventRow" style={{padding: 0}} md={9} sm={9}>*/}
-                                {/*<div className="eventRowWraper">*/}
-                                    {/*<div className="item" style={{border:'2px solid #000', width: 120 }}>*/}
-                                        {/*dfdsfdsf*/}
-                                    {/*</div>*/}
-                                    {/*<div className="item" style={{border:'2px solid #000', width: 33}}>*/}
-                                        {/*dfdsfdsf*/}
-                                    {/*</div>*/}
-                                    {/*<div className="item" style={{border:'2px solid #000', width: 200 }}>*/}
-                                        {/*dfdsfdsf*/}
-                                    {/*</div>*/}
-                                    {/*<div className="item" style={{border:'2px solid #000', width: 200 }}>*/}
-                                        {/*dfdsfdsf*/}
-                                    {/*</div>*/}
-                                    {/*<div className="item" style={{border:'2px solid #000', width: 200}}>*/}
-                                        {/*dfdsfdsf*/}
-                                    {/*</div>*/}
-                                    {/*<div className="item" style={{border:'2px solid #000', width: 200 }}>*/}
-                                        {/*dfdsfdsf*/}
-                                    {/*</div>*/}
-                                {/*</div>*/}
-
-                            {/*</Col>*/}
-
-
-
 
                         </Row>
                         <Row>
@@ -143,15 +173,20 @@ function mapStateToProps(state) {
         startDate: state.startDate,
         endDate: state.endDate,
         channelEvent:state.channelEvent,
-        currentPosition: state.currentPosition
+        currentPosition: state.currentPosition,
+        name: state.name,
+        facebookId: state.facebookId,
+        favourites: state.favourites,
     };
 }
 
 export default connect(mapStateToProps, {
-    setChannelIdList,
     getStartEndDate,
     getChannelEvent,
-    setPos
+    setPos,
+    insertFavourites,
+    updateFav,
+    getfavourites
 })(ChannelListItem);
 
 

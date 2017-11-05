@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import { browserHistory } from 'react-router';
 import {
     getChannelList,
     channelId,
@@ -7,6 +8,7 @@ import {
     setSortOrder,
     getStartEndDate,
     getChannelEvent,
+    setFacebookDetails,
     setPos
     } from '../actions/index';
 import {getPixelWidth} from '../utility';
@@ -15,7 +17,9 @@ import { Col,Row,Grid,Button } from 'react-bootstrap';
 import moment from 'moment';
 import TimeHeader from'./time_header'
 import {debounce} from './../utility'
-
+/*
+This is the parent class and renders channel item and calculates the viewport and sends ids to getEvents api as well
+ */
 class ChannelList extends Component {
     constructor(){
         super();
@@ -25,16 +29,36 @@ class ChannelList extends Component {
 
       this.props.getChannelList();
       this.props.getStartEndDate();
+      // this.props.getfavourites(this.props.facebookId,this.props.name);
       window.addEventListener('scroll', debounce(this.onChannelRowUpdate.bind(this),250));
       window.addEventListener('resize', debounce(this.onChannelRowUpdate.bind(this),250));
       window.addEventListener('load', debounce(this.handleLoad.bind(this),250));
+      window.fbAsyncInit = function () {
+          FB.init({
+              appId: '1985772575023712',
+              cookie: true,
+              xfbml: true,
+              version: 'v2.1'
+          });
+          (function (d, s, id) {
+              var js, fjs = d.getElementsByTagName(s)[0];
+              if (d.getElementById(id)) {
+                  return;
+              }
+              js = d.createElement(s);
+              js.id = id;
+              js.src = "https://connect.facebook.net/en_US/sdk.js";
+              fjs.parentNode.insertBefore(js, fjs);
+          }(document, 'script', 'facebook-jssdk'));
 
+      }
   }
+
   handleLoad(){
       setTimeout(this.onChannelRowUpdate.bind(this),3000);
   }
 
-    isElementVisible = (el) => {
+  isElementVisible = (el) => {
         let rect     = el.getBoundingClientRect(),
             vWidth   = window.innerWidth || doc.documentElement.clientWidth,
             vHeight  = window.innerHeight || doc.documentElement.clientHeight,
@@ -52,9 +76,7 @@ class ChannelList extends Component {
             ||  el.contains(efp(rect.right, rect.bottom))
             ||  el.contains(efp(rect.left,  rect.bottom))
         );
-    }
-
-
+  }
 
 
   onChannelRowUpdate=()=>{
@@ -73,19 +95,28 @@ class ChannelList extends Component {
 
       })
 
-      visibleChannels.join(',')
-      //console.log(visibleChannels)
-      this.props.getChannelEvent(visibleChannels,
-          moment(this.props.startDate).format('YYYY-MM-DD HH:MM'),moment(this.props.endDate).format('YYYY-MM-DD HH:MM'));
+      visibleChannels.join(',');
+
+      this.props.getChannelEvent(visibleChannels,(this.props.startDate),(this.props.endDate));
+
     }
 
   renderItem(channels) {
       if(channels !== undefined) {
           return (
               channels.map(object => {
+                  // let fav = false;
+                  //
+                  // if( this.props.favourites.indexOf(object.channelId) >= 0){
+                  //     fav = true
+                  // }
                   return (
                       <div key={object.channelId} ref={object.channelId} data-channel-id={object.channelId} className="childRow" >
-                          <ChannelListItem  key={object.channelId} channel = {object} channelEvent={this.props.channelEvent[object.channelId]}/>
+                          <ChannelListItem
+                              key={object.channelId}
+                              channel = {object}
+                              channelEvent={this.props.channelEvent[object.channelId]}
+                          />
                       </div>
                   )
               })
@@ -95,13 +126,13 @@ class ChannelList extends Component {
 
   renderTimeHeader(){
       let startDate = moment(this.props.startDate);
-      let endDate = moment(this.props.endDate);
+      let endDate = moment(this.props.endDate).utc();
+
       let duration = Math.round(moment.duration(endDate.diff(startDate)).asHours());
       let durationArray = [];
       for(let i = duration;i >= 0;i--) {
           durationArray.push(i)
       }
-
       return durationArray.map( object =>{
           return (
                 <div className="item" key={object}  style={{border:'2px solid #000', width: getPixelWidth(60) ,left:-getPixelWidth(60)* this.props.currentPosition}}>
@@ -146,16 +177,29 @@ class ChannelList extends Component {
       }
 
     }
+    logout=()=>{
+        FB.logout(function(response) {
+            browserHistory.push('/login')
+        });
+    }
+    header(){
+        if(this.props.facebookId !== undefined){
+            return(
+                <div>
+                <strong>Welcome {this.props.name}!</strong>
+                <Button style={{ marginLeft:'74.5%',border:'2px solid #000'}} onClick={()=>this.logout()}>Logout</Button>
+                </div>
+            )
+        }
+    }
 
   render() {
 
       return (
            <Grid>
-
-
+               {this.header()}
                <Row>
                    <Button onClick={this.onProgrammeScroll(-1,this)}>Left</Button>  <Button onClick={this.onProgrammeScroll(1,this)}>Right</Button>
-
                </Row>
 
                <Row>
@@ -173,7 +217,7 @@ class ChannelList extends Component {
 
                           <Col className="timeRow" style={{padding: 0}} >
                               <div className="eventRowWraper" style={{border:'2px solid #000' }}>
-                                     {this.renderTimeHeader()}
+                                  {this.renderTimeHeader()}
                               </div>
                           </Col>
 
@@ -200,7 +244,9 @@ function mapStateToProps(state) {
         sortOrder: state.sortOrder,
         startDate: state.startDate,
         endDate: state.endDate,
-        currentPosition: state.currentPosition
+        currentPosition: state.currentPosition,
+        name:state.name,
+        facebookId:state.facebookId,
     };
 }
 
@@ -211,5 +257,6 @@ export default connect(mapStateToProps, {
     setSortOrder,
     getStartEndDate,
     getChannelEvent,
-    setPos
+    setPos,
+    setFacebookDetails
 })(ChannelList);

@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import { Col,Button,Row,Grid,Image } from 'react-bootstrap';
+/*
+This class is for rendering the channel description based on channel id
+ */
 
  const ChannelListItemDesc = (props) => {
     return(

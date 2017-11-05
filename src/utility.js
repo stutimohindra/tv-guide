@@ -29,7 +29,9 @@ export const debounce = (func, wait, immediate) => {
         if (callNow) func.apply(context, args);
     };
 };
-
+/*
+every six pixels makes one minute
+ */
 export const getPixelWidth=(minutes) =>{
 
     return (minutes * pixel);
