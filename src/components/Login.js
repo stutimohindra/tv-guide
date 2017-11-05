@@ -66,11 +66,6 @@ class Login extends Component {
                             <span className="fa fa-facebook"></span> Facebook
                         </Button>
                     </FormGroup>
-                    <FormGroup controlId="password" bsSize="large" style={{ paddingLeft: '35%' }}>
-                        <Button style={{ width: '50%'}} bsStyle="primary" className="btn btn-block btn-social btn-google">
-                            <span className="fa fa-google"></span> Google
-                        </Button>
-                    </FormGroup>
                 </form>
             </div>
         );
