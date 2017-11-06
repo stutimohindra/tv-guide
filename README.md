@@ -5,4 +5,4 @@ To run this project:
 > npm install
 > npm start
 
-This project's landing page will display channels and there events .On clicking fav image user will be re directde to login with facebook  page . After logging in the user can manage favourites.
+This project's landing page will display channels and its events .By clicking "fav image", the user will be re-directed to the Facebook Login Page. After logging in, the use will be able to manage his favourites.
