@@ -17,6 +17,7 @@ import { Col,Row,Grid,Button } from 'react-bootstrap';
 import moment from 'moment';
 import TimeHeader from'./time_header'
 import {debounce} from './../utility'
+import _ from 'lodash';
 /*
 This is the parent class and renders channel item and calculates the viewport and sends ids to getEvents api as well
  */
@@ -97,8 +98,12 @@ class ChannelList extends Component {
       })
 
       visibleChannels.join(',');
+      //this prevents from the api being called for the same ids more than once
+      let diff = _.difference(visibleChannels,Object.keys(this.props.channelEvent));
 
-      this.props.getChannelEvent(visibleChannels,(this.props.startDate),(this.props.endDate));
+      if(diff.length >0)  {
+        this.props.getChannelEvent(diff,(this.props.startDate),(this.props.endDate));
+      }
 
     }
 

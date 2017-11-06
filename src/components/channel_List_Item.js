@@ -76,7 +76,8 @@ class ChannelListItem extends Component {
 
     }
     toggleImage=(channelId,isFav)=>{
-
+      console.log("inside toggle",this.props.facebookId !== undefined && this.props.name !== undefined && !isFav);
+      debugger;
         if(this.props.facebookId !== undefined && this.props.name !== undefined && !isFav) {
             this.props.insertFavourites(this.props.facebookId,this.props.name,channelId);
             this.props.getfavourites(this.props.facebookId,this.props.name)
@@ -193,5 +194,3 @@ export default connect(mapStateToProps, {
     updateFav,
     getfavourites
 })(ChannelListItem);
-
-

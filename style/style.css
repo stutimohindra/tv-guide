@@ -1,58 +1,195 @@
-.sortBtn .img.down{
+
+
+
+
+.mainContainer{
+    margin: 40px 0px;
+}
+
+
+
+/*========Sort / Programme Time Display  Start=========*/
+.filterRow {}
+
+.scrollBtn {
+    position: fixed;
+    top: 50%;
+    left:0px;
+    z-index: 2;
+    width: 100%;
+}
+
+.scrollBtn button {
+
+    position: absolute;
+    font-family: monospace;
+    font-size: 24px;
+    border-radius: 50%;
+    border: 1px solid #ccc;
+
+
+    width: 50px !important;
+    height: 50px !important;
+    background: rgba(68, 68, 68, 0.8);
+    color: #fff;
+}
+
+.scrollBtn button:first-child {
+    left: 60px;
+}
+
+.scrollBtn button:last-child {
+    right: 0px;
+}
+
+.scrollBtn button:hover {}
+
+.sortBox {
+    padding: 0px !important;
+}
+
+.sortBox button {
+
+
+    border-radius: 30px;
+    width: 80px;
+    text-align: center;
+    font-size: 10px;
+    font-weight: bold;
+    font-family: sans-serif;
+    padding: 2px;
+    margin: 3px;
+
+    background-color: #e3e3e3;
+    border: 2px solid #d4d4d4;
+    color: #737478;
+}
+
+.sortBox button.selected {
+    background-color: #1e1f21;
+    border: 2px solid #404246;
+    color: white;
+}
+
+.sortBox img.down {
     transform: rotate(180deg);
 }
 
-.sortBtnName #nameImg{
-    transform: rotate(180deg);
-}
 
 
 
-.timeRow{
+/*TimeRow*/
+
+.timeRow {
+        padding: 0;
     position: relative;
     height: 50px;
 }
 
-.timeRow .item{
+.timeRow .item {
     flex: 0 0 auto;
     position: relative;
     z-index: 0;
-    background-color: rgba(240, 173, 78, 0.8);
-    left:0px
+    left: 0px;
+    border: 1px solid #7a7a7a;
+    border-radius: 3px;
+    margin: 3px;
+    padding: 0px 5px;
+    background-color: rgba(180, 235, 170, 0.8);
 
 }
-.timeRow .item > div{
-    height: 100%;
-    font-size: 10px;
+
+.timeRow .item > div {
+        font-size: 20px;
+        line-height: 42px;
 }
 
-.eventRow{
+.timeRow .item > div > span:first-child{     float: left;
+    margin-left: 30px; }
+.timeRow .item > div > span:last-child{     float: right;
+    margin-right: 30px;}
+
+
+
+
+
+
+
+
+
+
+/*========Sort / Programme Time Display  END =========*/
+
+
+
+
+
+
+/*========EVENT / PROGRAMME START=========*/
+
+
+
+.channelContainer{
+        border: 1px solid #888787;
+    padding: 1px;
+}
+
+.channelContainer .channelRow{    border-bottom: 1px solid #ccc;}
+
+.eventRow {
     position: relative;
-    height: 150px;
+    height: 75px;
 }
-.eventRowWraper{
+
+.eventRowWraper {
     width: 100%;
     height: 100%;
-    display:flex;
+    display: flex;
     justify-content: flex-start;
     flex-direction: row;
     position: absolute;
     overflow: hidden;
     z-index: 1;
-    background-color: #0275d8;
-
+    background-color: #fff;
 }
 
-.eventRow .item{
+.eventRow .event-item {
     flex: 0 0 auto;
     position: relative;
     z-index: 0;
-    background-color: rgba(240, 173, 78, 0.8);
-    left:0px
+    left: 0px;
 
+    border: 1px solid #7a7a7a;
+    border-radius: 3px;
+    margin: 3px;
+    padding: 5px;
+    background-color: rgba(214, 185, 209, 0.8);
 }
-.eventRow .item > div{
+
+.eventRow .event-item>div {
     height: 100%;
     font-size: 10px;
 }
 
+
+
+
+
+/*========EVENT / PROGRAMME END=========*/
+
+
+/*Channel-Info*/
+
+.channelInfo {
+    /* border: 2px solid #000; */
+    font-size: 10px;
+    font-weight: bold;
+    background-color: #ed358a;
+    color: #ededed;
+}
+
+.text-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

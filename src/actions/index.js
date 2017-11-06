@@ -19,11 +19,13 @@ export const FETCH_FAVOURITES = 'FETCH_FAVOURITES';
 export const USER_INSERT_SUCCESS = 'USER_INSERT_SUCCESS';
 export const USER_FAV_SUCCESS = 'USER_FAV_SUCCESS';
 export const UPDATED_FAVOURITES ='UPDATED_FAVOURITES'
-
+const astroBackendUrl = 'http://ams-api.astro.com.my/ams/v3';
+// const favBackendUrl = 'https://tv-guide-ws.herokuapp.com';
+const favBackendUrl = 'http://localhost:3000';
 // get all channels
 export const getChannelList = () => {
     return (dispatch) => {
-        return axios.get(`http://ams-api.astro.com.my/ams/v3/getChannels`)
+        return axios.get(`${astroBackendUrl}/getChannels`)
             .then(channels => {
 
                 dispatch({
@@ -35,7 +37,7 @@ export const getChannelList = () => {
 };
 //get events against channel id
 export const getChannelEvent = (channelId,startDate,endDate) => {
-    let endpoint = `http://ams-api.astro.com.my/ams/v3/getEvents?channelId=${channelId}&periodStart=${startDate}&periodEnd=${endDate}`
+    let endpoint = `${astroBackendUrl}/getEvents?channelId=${channelId}&periodStart=${startDate}&periodEnd=${endDate}`
     console.log(endpoint)
     return (dispatch) => {
         return axios.get(endpoint)
@@ -134,7 +136,7 @@ export function onLogout(name,facebookId){
 export const insertUser=(name,facebookId)=> {
 
     return (dispatch) => {
-        fetch("https://tv-guide-ws.herokuapp.com/insertUser", {
+        fetch(`${favBackendUrl}/insertUser`, {
             method: "post",
             credentials: 'same-origin',
             mode: 'no-cors',
@@ -163,35 +165,22 @@ export const insertUser=(name,facebookId)=> {
 //get fav from the db
 export function getfavourites(facebookId,name) {
     return (dispatch) => {
-        var myInit = { method: 'GET',
-            headers: {
-                'Accept': 'text/plain',
-                'Content-Type': 'text/plain',
-            },
-            mode: 'no-cors',
-            cache: 'default' };
-
-        fetch(`https://tv-guide-ws.herokuapp.com/getUserFav/${facebookId}/${name}`,myInit).then((response) =>{
-            console.log(response)
-        }).then((myBlob) =>{
-            console.log(myBlob)
-        });
-        // return axios.get(`https://tv-guide-ws.herokuapp.com/getUserFav/${facebookId}/${name}`)
-        //     .then(favourites => {
-        //         let ids = favourites.data.data.map((object)=>{
-        //             return object.channel_id
-        //         })
-        //         dispatch({
-        //             type:'FETCH_FAVOURITES',
-        //             favourites:ids
-        //         })
-        //     })
+        return axios.get(`http://localhost:3000/getUserFav/${facebookId}/${name}`)
+            .then(favourites => {
+                let ids = favourites.data.data.map((object)=>{
+                    return object.channel_id
+                })
+                dispatch({
+                    type:'FETCH_FAVOURITES',
+                    favourites:ids
+                })
+            })
     };
 }
 // insert favourites into the db
 export function insertFavourites(facebookId,name,channelId){
     return (dispatch) => {
-        fetch("https://tv-guide-ws.herokuapp.com/insertUserFav", {
+        fetch(`${favBackendUrl}/insertUserFav`, {
             method: "post",
             credentials: 'same-origin',
             mode: 'no-cors',
@@ -216,12 +205,24 @@ export function insertFavourites(facebookId,name,channelId){
                 favInserted:false
             })
         });
+        // axios.post(`${favBackendUrl}/insertUserFav`,{facebookId:facebookId,name:name})
+        // .then(response=>{
+        //   dispatch({
+        //          type:'USER_FAV_SUCCESS',
+        //          favInserted:true
+        //      })
+        // }).catch((error)=>{
+        //   dispatch({
+        //           type:'USER_FAV_SUCCESS',
+        //           favInserted:false
+        //       })
+        // })
     }
 }
 // remove fav from the db
 export function updateFav(facebookId,name,channelId) {
     return (dispatch) => {
-        return axios.get(`https://tv-guide-ws.herokuapp.com/updateUserFav/${facebookId}/${name}/${channelId}`)
+        return axios.get(`${favBackendUrl}/${facebookId}/${name}/${channelId}`)
             .then(favouritesUpdated => {
                 console.log("were you updated",favouritesUpdated)
                 dispatch({

@@ -23,7 +23,7 @@ const INITIAL_STATE = {
     startDate: moment(new Date()).format('YYYY-MM-DD hh:mm A'),
     endDate: '',
     sortOrder:1,
-    channelEvent:'',
+    channelEvent:[],
     sortKey:'channelStbNumber',
     currentPosition: 0,
     name: undefined,
