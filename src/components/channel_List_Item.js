@@ -76,6 +76,7 @@ class ChannelListItem extends Component {
 
     }
     toggleImage=(channelId,isFav)=>{
+
         if(this.props.facebookId !== undefined && this.props.name !== undefined && !isFav) {
             this.props.insertFavourites(this.props.facebookId,this.props.name,channelId);
             this.props.getfavourites(this.props.facebookId,this.props.name)

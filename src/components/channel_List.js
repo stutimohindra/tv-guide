@@ -29,10 +29,11 @@ class ChannelList extends Component {
 
       this.props.getChannelList();
       this.props.getStartEndDate();
-      // this.props.getfavourites(this.props.facebookId,this.props.name);
+
       window.addEventListener('scroll', debounce(this.onChannelRowUpdate.bind(this),250));
       window.addEventListener('resize', debounce(this.onChannelRowUpdate.bind(this),250));
       window.addEventListener('load', debounce(this.handleLoad.bind(this),250));
+
       window.fbAsyncInit = function () {
           FB.init({
               appId: '1985772575023712',
@@ -105,11 +106,7 @@ class ChannelList extends Component {
       if(channels !== undefined) {
           return (
               channels.map(object => {
-                  // let fav = false;
-                  //
-                  // if( this.props.favourites.indexOf(object.channelId) >= 0){
-                  //     fav = true
-                  // }
+
                   return (
                       <div key={object.channelId} ref={object.channelId} data-channel-id={object.channelId} className="childRow" >
                           <ChannelListItem
