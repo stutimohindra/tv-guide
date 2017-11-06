@@ -6,7 +6,7 @@ This class is for rendering the channel description based on channel id
 
  const ChannelListItemDesc = (props) => {
     return(
-        <Grid style={{ border: "2px solid #000"}} className="info" >
+        <Grid className="info" >
             <Row className="show-grid">
             <Col md={10} sm={10}>
                 {props.channelDesc.channelDescription}

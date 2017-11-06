@@ -12,7 +12,7 @@ import {
     setPos,
     insertFavourites,
     updateFav,
-    getfavourites
+    getfavourites,
 } from '../actions/index';
 /*
 This class renders if channel is fav or not,it is the parent class for events of the channel
@@ -30,10 +30,6 @@ class ChannelListItem extends Component {
     componentDidMount(){
 
         this.props.channel;
-        if(this.props.facebookId !== undefined && this.props.name !== undefined){
-            this.props.getfavourites(this.props.facebookId,this.props.name);
-
-        }
 
     }
 
@@ -57,8 +53,8 @@ class ChannelListItem extends Component {
                 const styles = { width: getPixelWidth(eventDuration)}
 
                 return (
-                    <div key={object.eventID} className="item" style={{border:'2px solid #000', width: styles.width ,left:-getPixelWidth(60)* this.props.currentPosition}}>
-                     <ChannelEventDetail className="item"
+                    <div key={object.eventID} className="event-item" style={{ width: styles.width ,left:-getPixelWidth(60)* this.props.currentPosition}}>
+                     <ChannelEventDetail className="event-item"
                                          displayDuration={object.displayDuration}
                                          endTime={eventEndAt}
                                          startTime={moment(object.displayDateTime).format('HH:mm A')}
@@ -75,9 +71,8 @@ class ChannelListItem extends Component {
         }
 
     }
+
     toggleImage=(channelId,isFav)=>{
-      console.log("inside toggle",this.props.facebookId !== undefined && this.props.name !== undefined && !isFav);
-      debugger;
         if(this.props.facebookId !== undefined && this.props.name !== undefined && !isFav) {
             this.props.insertFavourites(this.props.facebookId,this.props.name,channelId);
             this.props.getfavourites(this.props.facebookId,this.props.name)
@@ -86,7 +81,6 @@ class ChannelListItem extends Component {
             this.props.updateFav(this.props.facebookId,this.props.name,channelId);
             this.props.getfavourites(this.props.facebookId,this.props.name)
 
-
         }else if(this.props.facebookId === undefined && this.props.name === undefined){
             return (
                 browserHistory.push('/login')
@@ -94,9 +88,9 @@ class ChannelListItem extends Component {
         }
     }
 
-    handleClickFav = (channelId) =>{
+    handleClickFav = (channelId,e) =>{
+        e.stopPropagation()
         let isFav = false
-        console.log(this.props.favourites)
         if(this.props.favourites.indexOf(channelId) >= 0){
             isFav = true;
         }
@@ -111,52 +105,54 @@ class ChannelListItem extends Component {
         this.props.setHandleClickEvent(!this.props.isClickedEvent)
     }
 
-    checkLoggedIn =(channelId) =>{
-        let isFav = false
-        if(this.props.favourites.indexOf(channelId) >= 0){
-            isFav = true;
-        }
-        if(this.props.facebookId !== undefined && this.props.name !== undefined && isFav){
-            return (
-                <Image className='fullHeart' style={{width: "15", height: '20'}} src="../../images/fullheart.png"/>
-            )
-        }else if(this.props.facebookId !== undefined && this.props.name !== undefined && !isFav) {
-            return (
-                <Image className='emptyHeart' style={{width: "15", height: '15'}} src="../../images/emptyheart.jpg"/>
-            )
-        }else{
-            return (
-                <Image className='emptyHeart' style={{width: "15", height: '15'}} src="../../images/emptyheart.jpg"/>
-            )
-        }
+    // checkLoggedIn =() =>{
+    //
+    //     if(this.props.facebookId !== undefined && this.props.name !== undefined ){
+    //         return true;
+    //     }else if(this.props.facebookId !== undefined && this.props.name !== undefined ) {
+    //         return false;
+    //     }else{
+    //         return false;
+    //     }
+    // }
+    isFavoruite=(channelId)=>{
+      let isFav = false
+      if(this.props.favourites.indexOf(channelId) >= 0){
+          isFav = true;
+      }
+      return isFav;
     }
 
     render(){
         const channelInfo =  this.props.channel
             return (
                 <div ref="rowRef" data-key={channelInfo.channelId}>
-                    <Grid ref={(ref) => this.myTextInput = ref}   style={{ border: "2px solid #000"}} >
+                    <Grid ref={(ref) => this.myTextInput = ref} >
                         <Row >
-                            <Col  md={3} sm={3} style={{ border: "2px solid #000"}} onClick={() => this.handleClick()}>
+                            <Col className="channelInfo" md={2} sm={2}  onClick={() => this.handleClick()}>
                                 <Row>
-                                    <Image width="100" src={channelInfo.channelExtRef[8].value}/>
+                                    <Image width="100" style={{ 'marginLeft': '20px'}} src={channelInfo.channelExtRef[8].value}/>
                                 </Row>
-                                <Row>
+                                <Row >
                                     <Col md={1} sm={1} >
-                                        <div onClick={()=>this.handleClickFav(channelInfo.channelId)}>
-                                            {this.checkLoggedIn(channelInfo.channelId)}
+                                        <div onClick={this.handleClickFav.bind(this,channelInfo.channelId)}>
+                                            {
+                                              this.props.facebookId !== undefined?
+                                              (this.isFavoruite(channelInfo.channelId))?<img  src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/WikiFont_uniE033_-_heart_-_red.svg/512px-WikiFont_uniE033_-_heart_-_red.svg.png" width="15" /> :<img  src="https://image.flaticon.com/icons/svg/60/60993.svg" width="10" />
+                                              :<img  src="https://image.flaticon.com/icons/svg/60/60993.svg" width="10" />
+                                            }
                                         </div>
                                     </Col>
-                                    <Col  md={1} sm={1}>
+                                    <Col  md={2} sm={2} className="channelInfo-number">
                                         {channelInfo.channelStbNumber}
                                     </Col>
-                                    <Col style={{ overflow: 'hidden', textOverflow: 'ellipsis' }} md={10} sm={10}>
+                                    <Col className="channelInfo-name text-truncate" alt="{channelInfo.channelTitle}" md={8} sm={8}>
                                         {channelInfo.channelTitle}
                                     </Col>
                                 </Row>
                             </Col>
 
-                            <Col className="eventRow" style={{padding: 0}} md={9} sm={9} >
+                            <Col className="eventRow" style={{padding: 0}} md={10} sm={10} >
                                 <div className="eventRowWraper">
                                     { this.props.channelEvent[channelInfo.channelId]? (this.renderEvents(this.props.channelEvent[channelInfo.channelId])) : <div/>}
                                 </div>
@@ -192,5 +188,6 @@ export default connect(mapStateToProps, {
     setPos,
     insertFavourites,
     updateFav,
-    getfavourites
+    getfavourites,
+
 })(ChannelListItem);

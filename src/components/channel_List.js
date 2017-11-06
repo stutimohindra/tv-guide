@@ -9,13 +9,16 @@ import {
     getStartEndDate,
     getChannelEvent,
     setFacebookDetails,
-    setPos
+    getfavourites,
+    setPos,
+    setChannelInfo
     } from '../actions/index';
 import {getPixelWidth} from '../utility';
 import ChannelListItem from './channel_List_Item';
 import { Col,Row,Grid,Button } from 'react-bootstrap';
 import moment from 'moment';
-import TimeHeader from'./time_header'
+import TimeHeader from'./time_header';
+import ProgrammInfo from './programm_info';
 import {debounce} from './../utility'
 import _ from 'lodash';
 /*
@@ -25,16 +28,18 @@ class ChannelList extends Component {
     constructor(){
         super();
         this.isInitialRender = true
+
     }
   componentDidMount(){
 
       this.props.getChannelList();
       this.props.getStartEndDate();
-
+      if(this.props.facebookId !== undefined && this.props.name !== undefined){
+        this.props.getfavourites(this.props.facebookId,this.props.name)
+      }
       window.addEventListener('scroll', debounce(this.onChannelRowUpdate.bind(this),250));
       window.addEventListener('resize', debounce(this.onChannelRowUpdate.bind(this),250));
       window.addEventListener('load', debounce(this.handleLoad.bind(this),250));
-
       window.fbAsyncInit = function () {
           FB.init({
               appId: '1985772575023712',
@@ -83,7 +88,7 @@ class ChannelList extends Component {
 
   onChannelRowUpdate=()=>{
 
-    let $channelRows = document.querySelectorAll('.childRow')
+    let $channelRows = document.querySelectorAll('.channelRow')
 
     let visibleChannels = []
      // find the ones in viewport
@@ -98,10 +103,8 @@ class ChannelList extends Component {
       })
 
       visibleChannels.join(',');
-      //this prevents from the api being called for the same ids more than once
-      let diff = _.difference(visibleChannels,Object.keys(this.props.channelEvent));
-
-      if(diff.length >0)  {
+      let diff = _.difference(visibleChannels,Object.keys(this.props.channelEvent))
+      if(diff.length > 0){
         this.props.getChannelEvent(diff,(this.props.startDate),(this.props.endDate));
       }
 
@@ -113,11 +116,12 @@ class ChannelList extends Component {
               channels.map(object => {
 
                   return (
-                      <div key={object.channelId} ref={object.channelId} data-channel-id={object.channelId} className="childRow" >
+                      <div key={object.channelId} ref={object.channelId} data-channel-id={object.channelId} className="channelRow" >
                           <ChannelListItem
                               key={object.channelId}
                               channel = {object}
                               channelEvent={this.props.channelEvent[object.channelId]}
+                              favourites = {this.props.favourites}
                           />
                       </div>
                   )
@@ -137,7 +141,7 @@ class ChannelList extends Component {
       }
       return durationArray.map( object =>{
           return (
-                <div className="item" key={object}  style={{border:'2px solid #000', width: getPixelWidth(60) ,left:-getPixelWidth(60)* this.props.currentPosition}}>
+                <div className="item" key={object}  style={{ width: getPixelWidth(60) ,left:-getPixelWidth(60)* this.props.currentPosition}}>
                     <TimeHeader key={object} startDate={startDate.get('hour')} endDate={parseInt((startDate).add(1, 'hours').format('HH'))}/>
                 </div>
           )
@@ -189,7 +193,7 @@ class ChannelList extends Component {
             return(
                 <div>
                 <strong>Welcome {this.props.name}!</strong>
-                <Button style={{ marginLeft:'74.5%',border:'2px solid #000'}} onClick={()=>this.logout()}>Logout</Button>
+                <Button className='scrollBtn' style={{ marginLeft:'74.5%',border:'2px solid #000'}} onClick={()=>this.logout()}>Logout</Button>
                 </div>
             )
         }
@@ -198,27 +202,39 @@ class ChannelList extends Component {
   render() {
 
       return (
-           <Grid>
+           <Grid className="mainContainer">
                {this.header()}
-               <Row>
-                   <Button onClick={this.onProgrammeScroll(-1,this)}>Left</Button>  <Button onClick={this.onProgrammeScroll(1,this)}>Right</Button>
+               <Row className="scrollBtn">
+                   <Button onClick={this.onProgrammeScroll(-1,this)}>&lt;</Button>
+                   <Button onClick={this.onProgrammeScroll(1,this)}>&gt;</Button>
                </Row>
-
-               <Row>
-                  <Col md={3} sm={3}>
-                      <Button className="sortBtn" data-key ='channelStbNumber' style={{ backgroundColor:'white',border:'2px solid #000'  }}
+               { !(_.isEmpty(this.props.channelInfo)) ? <ProgrammInfo /> :<div></div> }
+               <Row className="filterRow">
+                  <Col className="sortBox" md={2} sm={10}>
+                     {/* Channel Number Sort*/}
+                      <Button className="sortBtn"
+                              className={(this.props.sortKey =='channelStbNumber' ? 'selected' : '')}
+                              data-key ='channelStbNumber'
                               onClick={(e) => {this.handleClick(e)} }>
-                          Number <span ><img className={(this.props.sortOrder == 1 ? 'up':'down')} id='numberImg' src="" alt="▲"/> </span>
+                          Number
+                          <img className={(this.props.sortOrder == 1 ? 'up':'down')} id='numberImg' src="" alt="▲"/>
                       </Button>
-                      <Button  data-key ='channelTitle' style={{ backgroundColor:'white',border:'2px solid #000'  }}
-                              onClick={(e) => {this.handleClick(e)} }>Name<img className={(this.props.sortOrder == 1 ? 'up':'down')}
-                              id='nameImg' src="" alt="▲"/> </Button>
-                  </Col>
-                  <Col md={9} sm={9}>
-                      <Row style={{ border: '2px solid #000',width:'auto' }}>
 
-                          <Col className="timeRow" style={{padding: 0}} >
-                              <div className="eventRowWraper" style={{border:'2px solid #000' }}>
+                    {/*Channel Name Sort */}
+                      <Button data-key ='channelTitle'
+                              className="sortBtn"
+                              className={(this.props.sortKey == 'channelTitle' ? 'selected' : '')}
+                              onClick={(e) => {this.handleClick(e)} }>
+                              Name
+                              <img className={(this.props.sortOrder == 1 ? 'up':'down')}
+                              id='nameImg' src="" alt="▲"/>
+                      </Button>
+                  </Col>
+                {/* Hour Display Header  */}
+                  <Col md={10} sm={10}>
+                      <Row>
+                          <Col className="timeRow"  >
+                              <div className="eventRowWraper" >
                                   {this.renderTimeHeader()}
                               </div>
                           </Col>
@@ -227,7 +243,7 @@ class ChannelList extends Component {
                   </Col>
                </Row>
                <Row>
-                   <ul className="col-md-12 col-sm-12 list-group">
+                   <ul className="col-md-12 col-sm-12 list-group channelContainer">
                     {this.renderItem(this.props.channels)}
                     </ul>
                </Row>
@@ -249,6 +265,8 @@ function mapStateToProps(state) {
         currentPosition: state.currentPosition,
         name:state.name,
         facebookId:state.facebookId,
+        favourites: state.favourites,
+        channelInfo:state.channelInfo,
     };
 }
 
@@ -260,5 +278,7 @@ export default connect(mapStateToProps, {
     getStartEndDate,
     getChannelEvent,
     setPos,
-    setFacebookDetails
+    getfavourites,
+    setFacebookDetails,
+    setChannelInfo
 })(ChannelList);

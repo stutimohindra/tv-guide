@@ -8,7 +8,9 @@ class TimeHeader extends Component {
     render() {
         const styles = { width : getPixelWidth(60)}
        return(
-           <span style={{ border:'2px solid #000',display:'inline-block',width: styles.width }}>{this.props.startDate} - {this.props.endDate}</span>
+           <div style={{width: styles.width }}>
+           				<span>{this.props.startDate}:00</span>  <span>{this.props.endDate}:00</span>
+           </div>
        )
     }
 }

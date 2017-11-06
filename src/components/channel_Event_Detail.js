@@ -1,5 +1,9 @@
 import React, { Component } from 'react';
-import { Popover } from 'react-bootstrap';
+import {
+  setChannelInfo
+} from '../actions/index';
+import { connect } from 'react-redux';
+
 /*
 This class is the child class of channel_list_item and describes the events of each channel
  */
@@ -8,25 +12,31 @@ class ChannelEventDetail extends Component{
         super();
         this.state = {
             clicked: false,
+            clientX:0,
+            clientY:0
         };
     }
-    handleHover=()=>{
-        this.setState({ clicked : !this.state.clicked })
+    handleClick=(e)=>{
+        this.props.setChannelInfo(this.props);
     }
 
     render(){
         const details = this.props;
         return(
-           <div key={details.displayDuration} style={{border:'2px solid #000' }} onClick={()=>{this.handleHover()}}>
-               {details.eventName}
+           <div key={details.displayDuration}  onClick={this.handleClick.bind(this)}>
+               <strong> {details.eventName}</strong>
                <div>{' '}{details.startTime}-{details.endTime}</div>
-               {this.state.clicked ?
-                   <Popover id="popover-positioned-top" title={details.subGenre} style={{ overflowX:'auto' }}>
-                   <strong>{details.shortSynopsis}</strong>{details.actors}
-                   </Popover> :
-                   <div/>}
+
            </div>
         )
     }
 }
-export default ChannelEventDetail;
+function mapStateToProps(state) {
+    return {
+        channelInfo: state.channelInfo,
+    };
+}
+
+export default connect(mapStateToProps, {
+  setChannelInfo,
+})(ChannelEventDetail);

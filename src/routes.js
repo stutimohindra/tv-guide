@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route, IndexRoute } from 'react-router';
-import Login from './components/Login';
+import Login from './components/login';
 import ChannelList from './components/channel_List';
 
 export default (

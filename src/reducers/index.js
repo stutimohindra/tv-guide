@@ -11,7 +11,8 @@ import {
     FETCH_FAVOURITES,
     USER_INSERT_SUCCESS,
     USER_FAV_SUCCESS,
-    UPDATED_FAVOURITES
+    UPDATED_FAVOURITES,
+    POPUP_CHANNEL_INFO
     } from '../actions/index';
 import _ from 'lodash';
 import moment from 'moment';
@@ -32,6 +33,7 @@ const INITIAL_STATE = {
     user:false,
     favInserted:false,
     favouritesUpdated:false,
+    channelInfo:{}
 }
 
 export function reducer(state = INITIAL_STATE, action) {
@@ -123,6 +125,13 @@ export function reducer(state = INITIAL_STATE, action) {
                 ...state,
                 favouritesUpdated:action.favouritesUpdated
             }
+        }
+        break;
+        case POPUP_CHANNEL_INFO:{
+          return{
+            ...state,
+            channelInfo: action.channelInfo
+          }
         }
         break;
         default:
