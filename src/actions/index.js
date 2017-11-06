@@ -59,7 +59,6 @@ export function channelId(id) {
 export function getStartEndDate(){
     let startDate = moment(new Date()).format('YYYY-MM-DD HH:mm ');
     let endDate = moment().endOf('day').format('YYYY-MM-DD HH:mm');
-    console.log("::",startDate,endDate)
     return {
         type: GET_DATES,
         startDate: startDate,

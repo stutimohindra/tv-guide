@@ -73,14 +73,11 @@ class ChannelListItem extends Component {
 
     }
     toggleImage=(channelId,isFav)=>{
-        console.log(channelId,this.props.facebookId !== undefined , this.props.name !== undefined , isFav)
         if(this.props.facebookId !== undefined && this.props.name !== undefined && !isFav) {
-            console.log("came inside")
             this.props.insertFavourites(this.props.facebookId,this.props.name,channelId);
             this.props.getfavourites(this.props.facebookId,this.props.name)
 
         }else if(this.props.facebookId !== undefined && this.props.name !== undefined && isFav){
-            console.log("came inside ausii")
             this.props.updateFav(this.props.facebookId,this.props.name,channelId);
             this.props.getfavourites(this.props.facebookId,this.props.name)
 
