@@ -163,16 +163,29 @@ export const insertUser=(name,facebookId)=> {
 //get fav from the db
 export function getfavourites(facebookId,name) {
     return (dispatch) => {
-        return axios.get(`https://tv-guide-ws.herokuapp.com/getUserFav/${facebookId}/${name}`)
-            .then(favourites => {
-                let ids = favourites.data.data.map((object)=>{
-                    return object.channel_id
-                })
-                dispatch({
-                    type:'FETCH_FAVOURITES',
-                    favourites:ids
-                })
-            })
+        var myInit = { method: 'GET',
+            headers: {
+                'Accept': 'text/plain',
+                'Content-Type': 'text/plain',
+            },
+            mode: 'no-cors',
+            cache: 'default' };
+
+        fetch(`https://tv-guide-ws.herokuapp.com/getUserFav/${facebookId}/${name}`,myInit).then((response) =>{
+            console.log(response)
+        }).then((myBlob) =>{
+            console.log(myBlob)
+        });
+        // return axios.get(`https://tv-guide-ws.herokuapp.com/getUserFav/${facebookId}/${name}`)
+        //     .then(favourites => {
+        //         let ids = favourites.data.data.map((object)=>{
+        //             return object.channel_id
+        //         })
+        //         dispatch({
+        //             type:'FETCH_FAVOURITES',
+        //             favourites:ids
+        //         })
+        //     })
     };
 }
 // insert favourites into the db
