@@ -165,7 +165,7 @@ export function getfavourites(facebookId,name) {
                 let ids = favourites.data.data.map((object)=>{
                     return object.channel_id
                 })
-                console.log("the fav arws",ids)
+                ids = _.uniq(ids)
                 dispatch({
                     type:'FETCH_FAVOURITES',
                     favourites:ids
@@ -196,7 +196,6 @@ export function updateFav(facebookId,name,channelId) {
     return (dispatch) => {
         return axios.get(`https://tv-guide-ws.herokuapp.com/updateUserFav/${facebookId}/${name}/${channelId}`)
             .then(favouritesUpdated => {
-                console.log("were you updated",favouritesUpdated)
                 dispatch({
                     type:'UPDATED_FAVOURITES',
                     favouritesUpdated:favouritesUpdated
