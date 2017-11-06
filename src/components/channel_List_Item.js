@@ -30,7 +30,10 @@ class ChannelListItem extends Component {
     componentDidMount(){
 
         this.props.channel;
-        this.props.getfavourites(this.props.facebookId,this.props.name);
+        if(this.props.facebookId !== undefined && this.props.name !== undefined){
+            this.props.getfavourites(this.props.facebookId,this.props.name);
+
+        }
 
     }
 
@@ -116,6 +119,10 @@ class ChannelListItem extends Component {
                 <Image className='fullHeart' style={{width: "15", height: '20'}} src="../../images/fullheart.png"/>
             )
         }else if(this.props.facebookId !== undefined && this.props.name !== undefined && !isFav) {
+            return (
+                <Image className='emptyHeart' style={{width: "15", height: '15'}} src="../../images/emptyheart.jpg"/>
+            )
+        }else{
             return (
                 <Image className='emptyHeart' style={{width: "15", height: '15'}} src="../../images/emptyheart.jpg"/>
             )
