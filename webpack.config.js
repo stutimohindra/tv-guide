@@ -22,12 +22,12 @@ module.exports = {
     devServer: {
         historyApiFallback: true,
         contentBase: './',
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
-        },
-        host: 'localhost',
-        port: 3000
-  },
-    }
+        // headers: {
+        //   'Access-Control-Allow-Origin': '*',
+        //   'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
+        // },
+        // host: 'localhost',
+        // port: 3000
+    },
+
 }
