@@ -21,14 +21,22 @@
     font-size: 24px;
     border-radius: 50%;
     border: 1px solid #ccc;
-
-
     width: 50px !important;
     height: 50px !important;
     background: rgba(68, 68, 68, 0.8);
     color: #fff;
 }
-
+.logoutButton {
+  font-family: monospace;
+  font-size: 24px;
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  width: 50px !important;
+  height: 50px !important;
+  background: rgba(68, 68, 68, 0.8);
+  color: #fff;
+}
 .scrollBtn button:first-child {
     left: 60px;
 }

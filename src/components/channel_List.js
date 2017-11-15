@@ -193,7 +193,7 @@ class ChannelList extends Component {
             return(
                 <div>
                 <strong>Welcome {this.props.name}!</strong>
-                <Button className='scrollBtn' style={{ marginLeft:'74.5%',border:'2px solid #000'}} onClick={()=>this.logout()}>Logout</Button>
+                <Button className="scrollBtn" style={{ position: 'relative',width: '15%',marginLeft:'56.5%',border:'2px solid #000'}} onClick={()=>this.logout()}>Logout</Button>
                 </div>
             )
         }
